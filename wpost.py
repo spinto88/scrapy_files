@@ -13,12 +13,12 @@ class Item(scrapy.Item):
     tag = scrapy.Field()
     author = scrapy.Field()
 
-class LaNacionSpider(scrapy.Spider):
-    name = "lanacion"
+class WPostSpider(scrapy.Spider):
+    name = "wpost"
 
     def start_requests(self):
         urls = []
-        urls.append('http://www.lanacion.com.ar/edicion-impresa')
+        urls.append('https://www.washingtonpost.com/todays_paper/updates/')
 
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_links)
@@ -30,10 +30,12 @@ class LaNacionSpider(scrapy.Spider):
         except:
             title = ''
 
+        
         try:
             subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()')[0].extract()
         except:
             subtitle = ''
+        
 
         try:
             body = response.selector.xpath('//*[@itemprop = "articleBody"]//*/text()')
@@ -41,20 +43,21 @@ class LaNacionSpider(scrapy.Spider):
             body = ''
 
         try:
-            date_time = response.selector.xpath('//div[@class = "fecha"]//@content')[0].extract()
-            date = date_time.split(' ')[0] 
-            time = date_time.split(' ')[1]
+            date_time = response.selector.xpath('//*[@itemprop = "datePublished"]//@content')[0].extract()
+            date = date_time.split('T')[0] 
+            time = date_time.split('T')[1]
         except:
             date = ''
             time = ''
 
         try:
-            names = response.selector.xpath('//span[@itemprop = "name"]/text()')
+            section = response.selector.xpath('//*[@class = "headline-kicker"]//text()')[0].extract()
         except:
-            names = ''
+            section = ''
 
         try:
-            author = response.selector.xpath('//a[@itemprop = "author"]/text()')[0].extract()
+            authors = response.selector.xpath('//*[@itemprop = "author"]//*[@itemprop = "name"]//text()').extract()
+            author = ', '.join(list(set(authors)))
         except:
             author = ''
 
@@ -64,21 +67,8 @@ class LaNacionSpider(scrapy.Spider):
         item['date'] = date
         item['time'] = time
         item['author'] = author
-
-        try:
-            item['newspaper'] = names[0].extract()
-        except:
-            item['newspaper'] = u'LaNación'
-
-        try:
-            item['section'] = names[1].extract()
-        except:
-            item['section'] = ''
-
-        try:
-            item['tag'] = names[2].extract()
-        except:
-            item['tag'] = ''
+        item['newspaper'] = u'Washington Post'
+        item['section'] = section
 
         body_text = ''
         try:
@@ -94,6 +84,6 @@ class LaNacionSpider(scrapy.Spider):
             
     def parse_links(self, response):
 
-        links = response.selector.xpath('//*[@class = "f-linkNota"]/@href').extract()
+        links = response.selector.xpath('//a[@class = "headline"]/@href').extract()
         for link in links:
-            yield scrapy.Request(url = response.urljoin(link), callback = self.parse)
+            yield scrapy.Request(url = link, callback = self.parse)

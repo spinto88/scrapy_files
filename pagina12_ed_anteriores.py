@@ -12,8 +12,8 @@ class Item(scrapy.Item):
     author = scrapy.Field()
     url = scrapy.Field()
 
-class NYTSpider(scrapy.Spider):
-    name = "nyt"
+class Pagina12_ea(scrapy.Spider):
+    name = "pagina12_ea"
 
     def start_requests(self):
         urls = []
@@ -23,7 +23,7 @@ class NYTSpider(scrapy.Spider):
 
         while init_date <= final_date:
             date_str = init_date.isoformat().split('-')
-            url_name = 'http://www.nytimes.com/indexes/{}/{}/{}/todayspaper/index.html'.format(date_str[0], date_str[1], date_str[2])
+            url_name = 'http://www.pagina12.com.ar/diario/principal/diario/index-{}-{}-{}.html'.format(date_str[0], date_str[1], date_str[2])
             urls.append(url_name)
             init_date += datetime.timedelta(1)
 
@@ -33,7 +33,7 @@ class NYTSpider(scrapy.Spider):
     def parse(self, response):
 
         try:
-            title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
+            title = response.selector.xpath('//div[@class = "nota top12"]/h2/text()')[0].extract()
         except:
             title = ''
 
@@ -43,7 +43,12 @@ class NYTSpider(scrapy.Spider):
             url = ''
 
         try:
-            body = response.selector.xpath('//p[@class = "story-body-text story-content"]//text()').extract()
+            subtitle = response.selector.xpath('//p[@class = "intro"]//text()')[0].extract()
+        except:
+            subtitle = ''
+
+        try:
+            body = response.selector.xpath('//div[@id = "cuerpo"]//text()').extract()
             body_text = ''
             for text in body:
                 body_text += text
@@ -51,40 +56,43 @@ class NYTSpider(scrapy.Spider):
             body_text = ''
 
         try:
-            section = response.selector.xpath('//span[@class = "kicker-label"]//text()')[0].extract()
+            section = response.selector.xpath('//p[@class="volanta"]//text()')[0].extract()
         except:
             section = ''
 
         try:
-            date = response.selector.xpath('//time/@datetime')[0].extract()
-            date = date.split('T')[0]
+            prefix = response.selector.xpath('//p[@class="volanta"]//text()')[1].extract()
+        except:
+            prefix = ''
+
+        try:
+            date = response.selector.xpath('//span[@class = "fecha_edicion"]/text()')[0].extract()
         except:
             date = ''
 
         try:
-            authors = response.selector.xpath('//span[@class = "byline-author"]//text()').extract()
-            author = ', '.join(list(set(authors)))
+            author = response.selector.xpath('//p[@class="autor"]//text()')[0].extract()
+            author = author.split('Por ')[1]
         except:
             author = ''
 
         item = Item()
         item['title'] = title
+        item['subtitle'] = subtitle
         item['body'] = body_text
         item['section'] = section
         item['date'] = date
         item['author'] = author
+        item['newspaper'] = u'Página12'
         item['url'] = url
-        item['newspaper'] = 'NYTimes'
 
         return item
 
             
     def parse_links(self, response):
 
-        links = response.selector.xpath('//div[@class = "story"]//div[@class = "thumbnail"]//@href').extract()
-        links += response.selector.xpath('//div[@class = "columnGroup singleRule last"]//*[@href]/@href').extract()
-        links += response.selector.xpath('//*[@class = "headlinesOnly multiline flush"]//*[@href]/@href').extract()
+        links = response.selector.xpath('//a[@class = "cprincipal"]/@href').extract()
 
         for link in links:
-            yield scrapy.Request(url = link, callback = self.parse)
+            yield scrapy.Request(url = 'http://www.pagina12.com.ar' + link, callback = self.parse)
     
