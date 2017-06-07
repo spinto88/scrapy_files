@@ -18,7 +18,7 @@ class Pagina12_ea(scrapy.Spider):
     def start_requests(self):
         urls = []
 
-	init_date = datetime.date(2016, 1, 1)
+	init_date = datetime.date(2003, 1, 1)
 	final_date = datetime.date(2016, 12, 31)
 
         while init_date <= final_date:

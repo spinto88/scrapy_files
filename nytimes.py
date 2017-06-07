@@ -18,8 +18,8 @@ class NYTSpider(scrapy.Spider):
     def start_requests(self):
         urls = []
 
-	init_date = datetime.date(2016, 1, 1)
-	final_date = datetime.date(2016, 12, 31)
+	init_date = datetime.date(2014, 1, 1)
+	final_date = datetime.date(2017, 05, 31)
 
         while init_date <= final_date:
             date_str = init_date.isoformat().split('-')
