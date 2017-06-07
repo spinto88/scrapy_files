@@ -12,6 +12,7 @@ class Item(scrapy.Item):
     section = scrapy.Field()
     tag = scrapy.Field()
     author = scrapy.Field()
+    url = scrapy.Field()
 
 class WPostSpider(scrapy.Spider):
     name = "wpost"
@@ -30,12 +31,10 @@ class WPostSpider(scrapy.Spider):
         except:
             title = ''
 
-        
         try:
-            subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()')[0].extract()
+            url = response.url
         except:
-            subtitle = ''
-        
+            url = ''
 
         try:
             body = response.selector.xpath('//*[@itemprop = "articleBody"]//*/text()')
@@ -63,12 +62,12 @@ class WPostSpider(scrapy.Spider):
 
         item = Item()
         item['title'] = title
-        item['subtitle'] = subtitle
         item['date'] = date
         item['time'] = time
         item['author'] = author
         item['newspaper'] = u'Washington Post'
         item['section'] = section
+        item['url'] = url
 
         body_text = ''
         try:
