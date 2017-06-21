@@ -19,11 +19,12 @@ class LaNacionSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = []
-        for i in range(2030000, 2030200):
+        j = 0
+        for i in range(1979900, 2035000):
             urls.append('http://www.lanacion.com.ar/' + str(i))
 
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+            yield scrapy.Request(url=url, callback=self.parse, meta = {'dont_merge_cookies': True})
 
     def parse(self, response):
 
