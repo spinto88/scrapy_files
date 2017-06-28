@@ -6,9 +6,10 @@ import datetime
 from datetime import timedelta
 from lxml import etree
 
-table_to_save = 'lanacion'
-file_of_data = 'lanacion.xml'
-description_of_the_text = 'Notas del diario La Nación, tomadas de la página web indexadas como http://www.lanacion.com.ar/id, donde id es el número de nota. Las notas publicadas en la edición impresa tienen el atributo time = 00:00:00'
+table_to_save = 'pagina12'
+file_of_data = 'Databases/pagina12.xml'
+description_of_the_text = 'Notas del diario Página 12, tomadas de la página web indexadas como http://www.pagina12.com.ar/id, donde id es el número de nota.'
+# Las notas publicadas en la edición impresa tienen el atributo time = 00:00:00'
 
 data = etree.parse(file_of_data)
 
