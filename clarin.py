@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-
 import scrapy
 
 class Item(scrapy.Item):
     title = scrapy.Field()
     subtitle = scrapy.Field()
     body = scrapy.Field()
+    prefix = scrapy.Field()
     date = scrapy.Field()
     time = scrapy.Field()
     newspaper = scrapy.Field()
@@ -14,21 +14,17 @@ class Item(scrapy.Item):
     author = scrapy.Field()
     url = scrapy.Field()
 
-class LaNacionSpider(scrapy.Spider):
-    name = "lanacion"
+class ClarinSpider(scrapy.Spider):
+    name = "clarin"
 
     def start_requests(self):
         urls = []
-        j = 0
-        for i in range(1979900, 2035000):
-            urls.append('http://www.lanacion.com.ar/' + str(i))
+        urls.append('https://www.clarin.com/')
 
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse, meta = {'dont_merge_cookies': True})
+            yield scrapy.Request(url=url, callback=self.parse_links, meta = {'dont_merge_cookies': True})
 
     def parse(self, response):
-
-        url = response.url
 
         try:
             title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
@@ -36,7 +32,7 @@ class LaNacionSpider(scrapy.Spider):
             title = ''
 
         try:
-            subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()')[0].extract()
+            subtitle = response.selector.xpath('//*[@itemprop = "description"]//*/text()')[0].extract()
         except:
             subtitle = ''
 
@@ -46,7 +42,12 @@ class LaNacionSpider(scrapy.Spider):
             body = ''
 
         try:
-            date_time = response.selector.xpath('//div[@class = "fecha"]//@content')[0].extract()
+            prefix = response.selector.xpath('//*[@class = "volanta"]/text()')[0].extract()
+        except:
+            prefix = ''
+       
+        try:
+            date_time = response.selector.xpath('//*[@itemprop = "datePublished"]//@content')[0].extract()
             date = date_time.split(' ')[0] 
             time = date_time.split(' ')[1]
         except:
@@ -54,37 +55,26 @@ class LaNacionSpider(scrapy.Spider):
             time = ''
 
         try:
-            names = response.selector.xpath('//span[@itemprop = "name"]/text()')
-        except:
-            names = ''
-
-        try:
-            author = response.selector.xpath('//a[@itemprop = "author"]/text()')[0].extract()
+            author = response.selector.xpath('//*[@itemprop = "author"]/text()')[0].extract()
         except:
             author = ''
 
+        try:
+            section = response.selector.xpath('//*[@class = "header-section-name"]/text()')[0].extract()
+        except:
+            section = ''
+        
         item = Item()
         item['title'] = title
         item['subtitle'] = subtitle
+	item['prefix'] = prefix
+	item['section'] = section
+        item['author'] = author
         item['date'] = date
         item['time'] = time
-        item['author'] = author
-        item['url'] = url
+        item['newspaper'] = u'Clarín'
+	item['url'] = response.url
 
-        try:
-            item['newspaper'] = names[0].extract()
-        except:
-            item['newspaper'] = u'LaNación'
-
-        try:
-            item['section'] = names[1].extract()
-        except:
-            item['section'] = ''
-
-        try:
-            item['tag'] = names[2].extract()
-        except:
-            item['tag'] = ''
 
         body_text = ''
         try:
@@ -95,4 +85,14 @@ class LaNacionSpider(scrapy.Spider):
 
         item['body'] = body_text
 
-        return item 
+        return item
+
+    
+    def parse_links(self, response):
+
+        links = open('Clarin_links.txt','r').read().split('\n')
+
+        for link in set(links):
+	    if '.html' in link:
+                yield scrapy.Request(url = 'https://www.clarin.com' + link, callback = self.parse, meta = {'dont_merge_cookies': True})
+    

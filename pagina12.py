@@ -1,6 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import scrapy
+import datetime
+
+init_date = "2017-08-01"
+final_date = "2017-08-08"
+
+init_date = datetime.datetime.strptime(init_date, "%Y-%m-%d").date()
+final_date = datetime.datetime.strptime(final_date, "%Y-%m-%d").date()
+
+# Ids de las notas tentativas: dentro de esta ventana solo se queda con las notas cuya fecha esta dentro dentro del intervalo de tiempo indicado
+# Ver en la pagina...
+
+init_id = 53100
+final_id = 55100
+
 
 class Item(scrapy.Item):
     title = scrapy.Field()
@@ -18,7 +32,7 @@ class Pagina12Spider(scrapy.Spider):
 
     def start_requests(self):
         urls = []
-        for i in range(45000):
+        for i in range(init_id, final_id):
             urls.append('http://www.pagina12.com.ar/' + str(i))
 
         for url in urls:
@@ -27,14 +41,22 @@ class Pagina12Spider(scrapy.Spider):
     def parse(self, response):
 
         try:
+            date = response.selector.xpath('//div[@class = "time"]//*[@datetime]/@datetime')[0].extract()
+            date_aux = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+            if date_aux >= init_date and date_aux < final_date:
+                pass
+            else:
+                return None
+        except:
+            date = ''
+
+        try:
             title = response.selector.xpath('//div[@class = "article-title"]/text()')[0].extract()
         except:
             title = ''
+	    return None
 
-        try:
-            url = response.selector.xpath('//head/link/@href')[0].extract()
-        except:
-            url = ''
+        url = response.url
 
         try:
             subtitle = response.selector.xpath('//div[@class = "article-summary"]/text()')[0].extract()
@@ -59,11 +81,6 @@ class Pagina12Spider(scrapy.Spider):
 
         except: 
             body = ''
-
-        try:
-            date = response.selector.xpath('//div[@class = "time"]//*[@datetime]/@datetime')[0].extract()
-        except:
-            date = ''
 
         try:
             section = response.selector.xpath('//div[@class = "suplement"]//text()')[0].extract()

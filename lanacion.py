@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
+
 import scrapy
+import datetime
+
+init_date = "2017-08-01"
+final_date = "2017-08-08"
+
+init_date = datetime.datetime.strptime(init_date, "%Y-%m-%d").date()
+final_date = datetime.datetime.strptime(final_date, "%Y-%m-%d").date()
+
+# Ids de las notas tentativas: dentro de esta ventana solo se queda con las notas cuya fecha esta dentro dentro del intervalo de tiempo indicado
+# Ver en la pagina...
+
+init_id = 2048000
+final_id = 2055817
 
 class Item(scrapy.Item):
     title = scrapy.Field()
@@ -11,23 +25,44 @@ class Item(scrapy.Item):
     section = scrapy.Field()
     tag = scrapy.Field()
     author = scrapy.Field()
+    url = scrapy.Field()
 
 class LaNacionSpider(scrapy.Spider):
     name = "lanacion"
 
     def start_requests(self):
         urls = []
-        urls.append('http://www.lanacion.com.ar/edicion-impresa')
+        j = 0
+        for i in range(init_id, final_id):
+            urls.append('http://www.lanacion.com.ar/' + str(i))
 
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse_links)
+            yield scrapy.Request(url=url, callback=self.parse, meta = {'dont_merge_cookies': True})
 
     def parse(self, response):
+
+        url = response.url
+
+        try:
+            date_time = response.selector.xpath('//div[@class = "fecha"]//@content')[0].extract()
+            date = date_time.split(' ')[0] 
+            time = date_time.split(' ')[1]
+	
+            date_aux = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+            if date_aux >= init_date and date_aux < final_date: 
+                pass
+            else:
+                return None
+
+        except:
+            date = ''
+            time = ''
 
         try:
             title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
         except:
             title = ''
+	    return None
 
         try:
             subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()')[0].extract()
@@ -38,14 +73,6 @@ class LaNacionSpider(scrapy.Spider):
             body = response.selector.xpath('//*[@itemprop = "articleBody"]//*/text()')
         except:
             body = ''
-
-        try:
-            date_time = response.selector.xpath('//div[@class = "fecha"]//@content')[0].extract()
-            date = date_time.split(' ')[0] 
-            time = date_time.split(' ')[1]
-        except:
-            date = ''
-            time = ''
 
         try:
             names = response.selector.xpath('//span[@itemprop = "name"]/text()')
@@ -63,6 +90,7 @@ class LaNacionSpider(scrapy.Spider):
         item['date'] = date
         item['time'] = time
         item['author'] = author
+        item['url'] = url
 
         try:
             item['newspaper'] = names[0].extract()
@@ -89,10 +117,3 @@ class LaNacionSpider(scrapy.Spider):
         item['body'] = body_text
 
         return item
-
-            
-    def parse_links(self, response):
-
-        links = response.selector.xpath('//*[@class = "f-linkNota"]/@href').extract()
-        for link in links:
-            yield scrapy.Request(url = response.urljoin(link), callback = self.parse)
