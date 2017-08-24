@@ -18,7 +18,7 @@ class Pagina12Spider(scrapy.Spider):
 
     def start_requests(self):
         urls = []
-        for i in range(45000):
+        for i in range(45000, 53500):
             urls.append('http://www.pagina12.com.ar/' + str(i))
 
         for url in urls:

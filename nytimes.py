@@ -18,8 +18,8 @@ class NYTSpider(scrapy.Spider):
     def start_requests(self):
         urls = []
 
-	init_date = datetime.date(2014, 1, 1)
-	final_date = datetime.date(2017, 05, 31)
+	init_date = datetime.date(2016, 1, 1)
+	final_date = datetime.date(2017, 8, 1)
 
         while init_date <= final_date:
             date_str = init_date.isoformat().split('-')
@@ -28,7 +28,7 @@ class NYTSpider(scrapy.Spider):
             init_date += datetime.timedelta(1)
 
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse_links)
+            yield scrapy.Request(url=url, callback=self.parse_links, meta = {'dont_merge_cookies': True})
 
     def parse(self, response):
 
@@ -56,7 +56,7 @@ class NYTSpider(scrapy.Spider):
             section = ''
 
         try:
-            date = response.selector.xpath('//time/@datetime')[0].extract()
+            date = response.selector.xpath('//time[@class = "dateline"]/@content')[0].extract()
             date = date.split('T')[0]
         except:
             date = ''
@@ -86,5 +86,5 @@ class NYTSpider(scrapy.Spider):
         links += response.selector.xpath('//*[@class = "headlinesOnly multiline flush"]//*[@href]/@href').extract()
 
         for link in links:
-            yield scrapy.Request(url = link, callback = self.parse)
+            yield scrapy.Request(url = link, callback = self.parse, meta = {'dont_merge_cookies': True})
     

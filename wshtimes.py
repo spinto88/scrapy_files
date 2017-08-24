@@ -19,7 +19,7 @@ class WSHTSpider(scrapy.Spider):
     def start_requests(self):
         urls = []
 
-	init_date = datetime.date(2017, 01, 1)
+	init_date = datetime.date(2016, 01, 1)
 	final_date = datetime.date(2017, 05, 31)
 
         while init_date <= final_date:
@@ -75,7 +75,7 @@ class WSHTSpider(scrapy.Spider):
         item['url'] = url
         item['newspaper'] = 'WSHTimes'
         
-        if 'staff/' in response.url:
+        if 'staff/' in response.url or title == '':
             return None
         else:
             return item

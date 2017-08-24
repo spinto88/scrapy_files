@@ -20,7 +20,7 @@ class LaNacionSpider(scrapy.Spider):
     def start_requests(self):
         urls = []
         j = 0
-        for i in range(1979900, 2035000):
+        for i in range(2035000, 2048600):
             urls.append('http://www.lanacion.com.ar/' + str(i))
 
         for url in urls:
