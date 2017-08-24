@@ -21,7 +21,7 @@ class NYTSpider(scrapy.Spider):
 	init_date = datetime.date(2016, 1, 1)
 	final_date = datetime.date(2017, 8, 1)
 
-        while init_date <= final_date:
+        while init_date < final_date:
             date_str = init_date.isoformat().split('-')
             url_name = 'http://www.nytimes.com/indexes/{}/{}/{}/todayspaper/index.html'.format(date_str[0], date_str[1], date_str[2])
             urls.append(url_name)
