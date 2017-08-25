@@ -18,7 +18,7 @@ class NYTSpider(scrapy.Spider):
     def start_requests(self):
         urls = []
 
-	init_date = datetime.date(2016, 1, 1)
+	init_date = datetime.date(2017, 6, 1)
 	final_date = datetime.date(2017, 8, 1)
 
         while init_date < final_date:
@@ -46,10 +46,9 @@ class NYTSpider(scrapy.Spider):
 
         try:
             body = response.selector.xpath('//p[@class = "story-body-text story-content"]//text()').extract()
-            body_text = ' '.join(body)
-
+            body = ' '.join(body)
         except:
-            body_text = ''
+            body = ''
 
         try:
             section = response.selector.xpath('//span[@class = "kicker-label"]//text()')[0].extract()
@@ -70,7 +69,7 @@ class NYTSpider(scrapy.Spider):
 
         item = Item()
         item['title'] = title
-        item['body'] = body_text
+        item['body'] = body
         item['section'] = section
         item['date'] = date
         item['author'] = author
