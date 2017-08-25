@@ -33,9 +33,11 @@ class NYTSpider(scrapy.Spider):
     def parse(self, response):
 
         try:
-            title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
+            title = response.selector.xpath('//*[@itemprop = "headline"]/text()').extract()
+            title = ' '.join(title)
         except:
             title = ''
+            return None
 
         try:
             url = response.url
@@ -44,9 +46,8 @@ class NYTSpider(scrapy.Spider):
 
         try:
             body = response.selector.xpath('//p[@class = "story-body-text story-content"]//text()').extract()
-            body_text = ''
-            for text in body:
-                body_text += text
+            body_text = ' '.join(body)
+
         except:
             body_text = ''
 
