@@ -3,8 +3,8 @@
 import scrapy
 import datetime
 
-init_date = "2017-01-01"
-final_date = "2017-08-01"
+init_date = "2016-01-01"
+final_date = "2018-08-01"
 
 init_date = datetime.datetime.strptime(init_date, "%Y-%m-%d").date()
 final_date = datetime.datetime.strptime(final_date, "%Y-%m-%d").date()
@@ -12,8 +12,8 @@ final_date = datetime.datetime.strptime(final_date, "%Y-%m-%d").date()
 # Ids de las notas tentativas: dentro de esta ventana solo se queda con las notas cuya fecha esta dentro dentro del intervalo de tiempo indicado
 # Ver en la pagina...
 
-init_id = 0
-final_id = 55100
+init_id = 45000
+final_id = 45100
 
 
 class Item(scrapy.Item):
@@ -51,7 +51,8 @@ class Pagina12Spider(scrapy.Spider):
             date = ''
 
         try:
-            title = response.selector.xpath('//div[@class = "article-title"]/text()')[0].extract()
+            title = response.selector.xpath('//div[@class = "article-title"]/text()').extract()
+            title = ' '.join(title)
         except:
             title = ''
 	    return None
@@ -59,12 +60,8 @@ class Pagina12Spider(scrapy.Spider):
         url = response.url
 
         try:
-            subtitle = response.selector.xpath('//div[@class = "article-summary"]/text()')[0].extract()
-        except:
-            subtitle = ''
-
-        try:
-            subtitle = response.selector.xpath('//div[@class = "article-summary"]/text()')[0].extract()
+            subtitle = response.selector.xpath('//div[@class = "article-summary"]/text()').extract()
+            subtitle = ' '.join(subtitle)
         except:
             subtitle = ''
 
@@ -74,21 +71,20 @@ class Pagina12Spider(scrapy.Spider):
             prefix = ''
 
         try: 
-            body = response.selector.xpath('//div[@class = "article-text"]//text()')
-	    body_text = ''
-            for text in body:
-                body_text += text.extract() + ' '
-
+            body = response.selector.xpath('//div[@class = "article-text"]//text()').extract()
+	    body = ' '.join(body)
         except: 
             body = ''
 
         try:
-            section = response.selector.xpath('//div[@class = "suplement"]//text()')[0].extract()
+            section = response.selector.xpath('//div[@class = "suplement"]//text()').extract()
+            section = ' '.join(section)
         except:
             section = ''
 
         try:
-            author = response.selector.xpath('//div[@class = "article-author"]//a/text()')[0].extract()
+            author = response.selector.xpath('//div[@class = "article-author"]//a/text()').extract()
+            author = ' '.join(author)
         except:
             author = ''
 
@@ -98,7 +94,7 @@ class Pagina12Spider(scrapy.Spider):
         item['date'] = date
         item['newspaper'] = u'Página12'
         item['section'] = section
-	item['body'] = body_text
+	item['body'] = body
         item['prefix'] = prefix
         item['author'] = author
         item['url'] = url
