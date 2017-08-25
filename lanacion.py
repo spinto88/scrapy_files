@@ -59,20 +59,23 @@ class LaNacionSpider(scrapy.Spider):
             time = ''
 
         try:
-            title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
+            title = response.selector.xpath('//*[@itemprop = "headline"]//text()')
+            title = ' '.join([text.content() for text in title])
         except:
             title = ''
 	    return None
 
         try:
-            subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()')[0].extract()
+            subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()').extract()
+            subtitle = ' '.join(title)
         except:
             subtitle = ''
 
         try:
             body = response.selector.xpath('//*[@itemprop = "articleBody"]//*/text()')
+            body_text = ' '.join([text.extract() for text in body])
         except:
-            body = ''
+            body_text = ''
 
         try:
             names = response.selector.xpath('//span[@itemprop = "name"]/text()')
@@ -106,13 +109,6 @@ class LaNacionSpider(scrapy.Spider):
             item['tag'] = names[2].extract()
         except:
             item['tag'] = ''
-
-        body_text = ''
-        try:
-            for text in body:
-                body_text += text.extract() + ' '
-        except: 
-            pass
 
         item['body'] = body_text
 
