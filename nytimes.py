@@ -18,7 +18,7 @@ class NYTSpider(scrapy.Spider):
     def start_requests(self):
         urls = []
 
-	init_date = datetime.date(2017, 6, 1)
+	init_date = datetime.date(2016, 1, 1)
 	final_date = datetime.date(2017, 8, 1)
 
         while init_date < final_date:
@@ -56,8 +56,8 @@ class NYTSpider(scrapy.Spider):
             section = ''
 
         try:
-            date = response.selector.xpath('//time[@class = "dateline"]/@content')[0].extract()
-            date = date.split('T')[0]
+            aux = response.url.split('/')
+            date = '-'.join(aux[3:6])
         except:
             date = ''
 

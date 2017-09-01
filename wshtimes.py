@@ -56,7 +56,8 @@ class WSHTSpider(scrapy.Spider):
             section = ''
         
         try:
-            date = response.selector.xpath('//span[@class = "source"]//text()').extract()
+            aux = response.url.split('/')
+            date = '-'.join(aux[4:7])
         except:
             date = ''
 

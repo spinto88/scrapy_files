@@ -3,7 +3,7 @@
 import scrapy
 import datetime
 
-init_date = "2017-07-31"
+init_date = "2017-01-01"
 final_date = "2017-08-01"
 
 init_date = datetime.datetime.strptime(init_date, "%Y-%m-%d").date()
@@ -12,8 +12,8 @@ final_date = datetime.datetime.strptime(final_date, "%Y-%m-%d").date()
 # Ids de las notas tentativas: dentro de esta ventana solo se queda con las notas cuya fecha esta dentro dentro del intervalo de tiempo indicado
 # Ver en la pagina...
 
-init_id = 2048831
-final_id = 2048832
+init_id = 1970000
+final_id = 2051000
 
 class Item(scrapy.Item):
     title = scrapy.Field()
