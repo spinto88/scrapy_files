@@ -6,13 +6,15 @@ import datetime
 from datetime import timedelta
 from lxml import etree
 
-table_to_save = 'lanacion'
-file_of_data = 'Databases/lanacion_01_2017-07_2017.xml'
-description_of_the_text = 'Notas del diario La Nación, tomadas de la página web indexadas como http://www.lanacion.com.ar/id, donde id es el número de nota. Las notas publicadas en la edición impresa tienen el atributo time = 00:00:00'
+table_to_save = 'nytimes'
+file_of_data = 'Databases/nytimes_01_2016-07_2017.xml'
+description_of_the_text = 'Notas del diario NYTimes, tomadas de la edicion impresa de cada día'
+#página web indexadas como http://www.pagina12.com.ar/id, donde id es el número de nota.'
+# Las notas publicadas en la edición impresa tienen el atributo time = 00:00:00'
 
 data = etree.parse(file_of_data)
 
-con = sqlite3.connect('data.db')
+con = sqlite3.connect('data_english.db')
 cursor = con.cursor()
 
 try:
