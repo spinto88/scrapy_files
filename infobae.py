@@ -22,7 +22,7 @@ class InfobaeSpider(scrapy.Spider):
         urls.append('http://www.infobae.com/')
 
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse, meta = {'dont_merge_cookies': True})
+            yield scrapy.Request(url=url, callback=self.parse_links, meta = {'dont_merge_cookies': True})
 
     def parse(self, response):
 
@@ -79,7 +79,7 @@ class InfobaeSpider(scrapy.Spider):
  	for section in ['politica', 'sociedad', 'deportes', 'economia']:
 
             links += open('Infobae_links_{}.txt'.format(section), 'r').\
-                                                      read.split('\n')
+                                                      read().split('\n')
 
         for link in set(links):
 	    if '.html' in link:
