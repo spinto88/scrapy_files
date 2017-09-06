@@ -76,12 +76,10 @@ class InfobaeSpider(scrapy.Spider):
     def parse_links(self, response):
 
         links = []
- 	for section in ['politica', 'sociedad', 'deportes', 'economia']:
+ 	for section in ['politica']:
 
             links += open('Infobae_links_{}.txt'.format(section), 'r').\
                                                       read().split('\n')
-
         for link in set(links):
-	    if '.html' in link:
-                yield scrapy.Request(url = 'https://www.infobae.com' + link, callback = self.parse, meta = {'dont_merge_cookies': True})
+            yield scrapy.Request(url = 'http://www.infobae.com' + link, callback = self.parse, meta = {'dont_merge_cookies': True})
     
