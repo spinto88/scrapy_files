@@ -19,7 +19,7 @@ class InfobaeSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = []
-        urls.append('http://www.infobae.com/tendencias/2017/08/15/el-porno-que-ellas-quieren-que-buscan-las-mujeres-en-internet/')
+        urls.append('http://www.infobae.com/')
 
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse, meta = {'dont_merge_cookies': True})
@@ -75,9 +75,11 @@ class InfobaeSpider(scrapy.Spider):
     
     def parse_links(self, response):
 
-        fp = open('Infobae_links','r') 
-        links = fp.read.split('\n')
-        fp.close()
+        links = []
+ 	for section in ['politica', 'sociedad', 'deportes', 'economia']:
+
+            links += open('Infobae_links_{}.txt'.format(section), 'r').\
+                                                      read.split('\n')
 
         for link in set(links):
 	    if '.html' in link:
