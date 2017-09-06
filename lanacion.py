@@ -3,8 +3,8 @@
 import scrapy
 import datetime
 
-init_date = "2017-08-01"
-final_date = "2017-08-08"
+init_date = "2017-01-01"
+final_date = "2017-08-01"
 
 init_date = datetime.datetime.strptime(init_date, "%Y-%m-%d").date()
 final_date = datetime.datetime.strptime(final_date, "%Y-%m-%d").date()
@@ -12,8 +12,8 @@ final_date = datetime.datetime.strptime(final_date, "%Y-%m-%d").date()
 # Ids de las notas tentativas: dentro de esta ventana solo se queda con las notas cuya fecha esta dentro dentro del intervalo de tiempo indicado
 # Ver en la pagina...
 
-init_id = 2048000
-final_id = 2055817
+init_id = 1970000
+final_id = 2051000
 
 class Item(scrapy.Item):
     title = scrapy.Field()
@@ -59,18 +59,21 @@ class LaNacionSpider(scrapy.Spider):
             time = ''
 
         try:
-            title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
+            title = response.selector.xpath('//*[@itemprop = "headline"]//text()').extract()
+            title = ' '.join(title)
         except:
             title = ''
 	    return None
 
         try:
-            subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()')[0].extract()
+            subtitle = response.selector.xpath('//*[@itemprop = "description"]/text()').extract()
+            subtitle = ' '.join(subtitle)
         except:
             subtitle = ''
 
         try:
-            body = response.selector.xpath('//*[@itemprop = "articleBody"]//*/text()')
+            body = response.selector.xpath('//*[@itemprop = "articleBody"]//*/text()').extract()
+            body = ' '.join(body)
         except:
             body = ''
 
@@ -107,13 +110,6 @@ class LaNacionSpider(scrapy.Spider):
         except:
             item['tag'] = ''
 
-        body_text = ''
-        try:
-            for text in body:
-                body_text += text.extract() + ' '
-        except: 
-            pass
-
-        item['body'] = body_text
+        item['body'] = body
 
         return item

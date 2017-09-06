@@ -19,23 +19,25 @@ class NYTSpider(scrapy.Spider):
         urls = []
 
 	init_date = datetime.date(2016, 1, 1)
-	final_date = datetime.date(2016, 12, 31)
+	final_date = datetime.date(2017, 8, 1)
 
-        while init_date <= final_date:
+        while init_date < final_date:
             date_str = init_date.isoformat().split('-')
             url_name = 'http://www.nytimes.com/indexes/{}/{}/{}/todayspaper/index.html'.format(date_str[0], date_str[1], date_str[2])
             urls.append(url_name)
             init_date += datetime.timedelta(1)
 
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse_links)
+            yield scrapy.Request(url=url, callback=self.parse_links, meta = {'dont_merge_cookies': True})
 
     def parse(self, response):
 
         try:
-            title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
+            title = response.selector.xpath('//*[@itemprop = "headline"]/text()').extract()
+            title = ' '.join(title)
         except:
             title = ''
+            return None
 
         try:
             url = response.url
@@ -44,11 +46,9 @@ class NYTSpider(scrapy.Spider):
 
         try:
             body = response.selector.xpath('//p[@class = "story-body-text story-content"]//text()').extract()
-            body_text = ''
-            for text in body:
-                body_text += text
+            body = ' '.join(body)
         except:
-            body_text = ''
+            body = ''
 
         try:
             section = response.selector.xpath('//span[@class = "kicker-label"]//text()')[0].extract()
@@ -56,8 +56,8 @@ class NYTSpider(scrapy.Spider):
             section = ''
 
         try:
-            date = response.selector.xpath('//time/@datetime')[0].extract()
-            date = date.split('T')[0]
+            aux = response.url.split('/')
+            date = '-'.join(aux[3:6])
         except:
             date = ''
 
@@ -69,7 +69,7 @@ class NYTSpider(scrapy.Spider):
 
         item = Item()
         item['title'] = title
-        item['body'] = body_text
+        item['body'] = body
         item['section'] = section
         item['date'] = date
         item['author'] = author
@@ -86,5 +86,5 @@ class NYTSpider(scrapy.Spider):
         links += response.selector.xpath('//*[@class = "headlinesOnly multiline flush"]//*[@href]/@href').extract()
 
         for link in links:
-            yield scrapy.Request(url = link, callback = self.parse)
+            yield scrapy.Request(url = link, callback = self.parse, meta = {'dont_merge_cookies': True})
     

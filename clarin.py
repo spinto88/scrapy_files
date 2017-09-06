@@ -20,7 +20,6 @@ class ClarinSpider(scrapy.Spider):
     def start_requests(self):
         urls = []
         urls.append('https://www.clarin.com/')
-
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_links, meta = {'dont_merge_cookies': True})
 
