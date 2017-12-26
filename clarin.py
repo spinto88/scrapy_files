@@ -26,7 +26,7 @@ class ClarinSpider(scrapy.Spider):
     def parse(self, response):
 
         try:
-            title = response.selector.xpath('//*[@itemprop = "headline"]/text()')[0].extract()
+            title = response.selector.xpath('//*[@itemprop = "headline"]/@content')[0].extract()
         except:
             title = ''
 
@@ -89,9 +89,12 @@ class ClarinSpider(scrapy.Spider):
     
     def parse_links(self, response):
 
-        links = open('Clarin_links.txt','r').read().split('\n')
+	links = []
+        for section in ['politica', 'policiales', 'mundo', 'economia', 'sociedad']:
 
+            links += open('Clarin_links_{}.txt'.format(section), 'r').\
+                                                      read().split('\n')
         for link in set(links):
-	    if '.html' in link:
-                yield scrapy.Request(url = 'https://www.clarin.com' + link, callback = self.parse, meta = {'dont_merge_cookies': True})
-    
+            yield scrapy.Request(url = 'http://www.clarin.com' + link, callback = self.parse, meta = {'dont_merge_cookies': True})
+
+

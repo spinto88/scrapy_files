@@ -5,16 +5,26 @@ import os
 import datetime
 from datetime import timedelta
 from lxml import etree
+import calendar
 
-table_to_save = 'nytimes'
-file_of_data = 'Databases/nytimes_01_2016-07_2017.xml'
-description_of_the_text = 'Notas del diario NYTimes, tomadas de la edicion impresa de cada día'
+def date_converter(y):
+    # Aux function to transform month name to number
+    name2num = lambda x: calendar.month_abbr[:].index(x.capitalize())
+    date = y.split('-')
+    date[1] = name2num(date[1])
+    date = '{}-{}-{}'.format(date[0], date[1], date[2])
+    return date   
+    
+
+table_to_save = 'clarin'
+file_of_data = 'Databases/clarin_fin_ano.xml'
+description_of_the_text = 'Notas del diario New York Times'
 #página web indexadas como http://www.pagina12.com.ar/id, donde id es el número de nota.'
 # Las notas publicadas en la edición impresa tienen el atributo time = 00:00:00'
 
 data = etree.parse(file_of_data)
 
-con = sqlite3.connect('data_english.db')
+con = sqlite3.connect('data.db')
 cursor = con.cursor()
 
 try:
@@ -31,6 +41,17 @@ except:
 
 items = data.xpath('//item')
 for item in items:
+       
+    try: 
+        date = item.xpath('date/text()')[0]
+	if table_to_save == 'wshtimes':
+	    date = date_converter(date)
+
+        date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        if date >= datetime.date(2017,12,24) or date < datetime.date(2017,11,06):
+            continue
+    except:
+        continue
 
     order = 'insert into {} (id) values ({});'.format(table_to_save, id_note)
     cursor.execute(order)
@@ -118,6 +139,10 @@ for item in items:
 
     try:
         date = item.xpath('date/text()')[0]
+	if table_to_save == 'wshtimes':
+	    date = date_converter(date)
+
+        date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
         order = 'update {} set date  = "{}" where id = {};'\
                  .format(table_to_save, date, id_note)
         cursor.execute(order)
