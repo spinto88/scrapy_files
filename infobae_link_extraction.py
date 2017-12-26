@@ -4,7 +4,7 @@ import cPickle as pk
 import datetime
 from copy import deepcopy
 
-#dryscrape.start_xvfb()
+dryscrape.start_xvfb()
 sess = dryscrape.Session()
 
 sections = ['economia']

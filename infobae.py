@@ -76,7 +76,7 @@ class InfobaeSpider(scrapy.Spider):
     def parse_links(self, response):
 
         links = []
- 	for section in ['sociedad', 'economia', 'deportes']:
+ 	for section in ['politica', 'sociedad', 'economia', 'deportes']:
 
             links += open('Infobae_links_{}.txt'.format(section), 'r').\
                                                       read().split('\n')

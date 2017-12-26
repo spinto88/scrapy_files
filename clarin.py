@@ -89,8 +89,10 @@ class ClarinSpider(scrapy.Spider):
     
     def parse_links(self, response):
 
-	links = []
-        for section in ['politica', 'policiales', 'mundo', 'economia', 'sociedad']:
+        links = []
+        for section in ['politica', 'mundo', 'sociedad', \
+                                     'policiales', 'economia']:
+            links += open('Clarin_links_{}.txt'.format(section),'r').read().split('\n')
 
             links += open('Clarin_links_{}.txt'.format(section), 'r').\
                                                       read().split('\n')
