@@ -17,8 +17,8 @@ def date_converter(y):
     
 
 table_to_save = 'clarin'
-file_of_data = 'Databases/clarin_fin_ano.xml'
-description_of_the_text = 'Notas del diario New York Times'
+file_of_data = 'Databases/clarin_varios.xml'
+description_of_the_text = 'Notas del diario Clarin de la pagina web extrayendo los links dia a dia'
 #página web indexadas como http://www.pagina12.com.ar/id, donde id es el número de nota.'
 # Las notas publicadas en la edición impresa tienen el atributo time = 00:00:00'
 
@@ -48,7 +48,7 @@ for item in items:
 	    date = date_converter(date)
 
         date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
-        if date >= datetime.date(2017,12,24) or date < datetime.date(2017,11,06):
+        if date >= datetime.date(2017,12,24) or date < datetime.date(2017,07,31):
             continue
     except:
         continue
