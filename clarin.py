@@ -90,12 +90,16 @@ class ClarinSpider(scrapy.Spider):
     def parse_links(self, response):
 
         links = []
-        for section in ['politica', 'mundo', 'sociedad', \
-                                     'policiales', 'economia']:
-            links += open('Clarin_links_{}.txt'.format(section),'r').read().split('\n')
 
-            links += open('Clarin_links_{}.txt'.format(section), 'r').\
-                                                      read().split('\n')
+        import datetime
+        init_date = datetime.date(2017,12,24)
+        final_date = datetime.date(2018,2,4)
+
+        while init_date <= final_date: 
+            links += open('Clarin_links/Clarin_links_{}.txt'\
+                           .format(init_date),'r').read().split('\n')
+            init_date += datetime.timedelta(1)
+
         for link in set(links):
             yield scrapy.Request(url = 'http://www.clarin.com' + link, callback = self.parse, meta = {'dont_merge_cookies': True})
 
